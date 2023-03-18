@@ -1,0 +1,10 @@
+<table border = 1>
+    {% for key, value in data.items() %}
+
+    <tr>
+       <th> Node: {{ key }} </th>
+       <td> Status: {{ value[1] }} </td>
+    </tr>
+
+    {% endfor %}
+ </table>
