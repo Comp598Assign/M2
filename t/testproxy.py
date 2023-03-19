@@ -1,12 +1,13 @@
 from flask import Flask, jsonify , request
 import sys
 import docker
-client = docker.from_env()
+import subprocess
 app = Flask(__name__)
+client = docker.from_env()
+client.images.pull('ubuntu')
 node_list = []
 
-app.route( '/register/<name>/<port>')
-
+@app.route( '/register/<name>/<port>')
 def register(name, port):
     for node in node_list:
         print(node['port'])
@@ -24,30 +25,26 @@ def register(name, port):
 
 
 
-app.route('/launch')
+@app.route('/launch')
 def launch():
     for node in node_list:
         if not node['running']:
-            node = launch_node(node['name'], node['port'])
+            a = launch_node(node['name'], node['port'])
         if node is not None:
-            return jsonify ({'response' : 'success' ,'port' : node['port'], 'name ' : node['name'],'running' : node['running']})
+            return jsonify ({'response' : 'success' ,
+                             'port' : node['port'], 
+                             'name' : node['name'],
+                             'running' : "yes"})
     return jsonify({'response ' : 'failure', 'reason' : 'Unknown reason'})
 
 
 def launch_node(container_name, port_number):
-    [img, logs] = client.images.build (path='/', rm=True ,dockerfile = './Dockerfile' )
-    for container in client.containers.list():
-        if container.name == container_name :
-            container.remove(v=True, force=True)
-    client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'app.py', container_name],ports={'5000/tcp' : port_number})
-    index = -1
-    for i in range(len(node_list)):
-        node = node_list[i]
-        if container_name == node['name']:
-            index = i
-            node_list[i] = { 'port ' : port_number,'name ': container_name,'running': True}
-            break
+
+    container = client.containers.run('ubuntu', name = container_name, detach = True, tty = True, ports={'5000/tcp' : port_number})
+
+    subprocess.Popen(['docker','exec',container.id,'bash','-c', "echo good"])
+
     print('Succesfully launched a node' )
-    return node_list[index]
+    return 0
 if __name__== '__main__' :
     app. run(debug=True,host='0.0.0.0', port=5000)
