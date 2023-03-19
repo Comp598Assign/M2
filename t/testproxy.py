@@ -5,7 +5,7 @@ client = docker.from_env()
 app = Flask(__name__)
 node_list = []
 
-app.route( '/register/<name>/<port>')
+@app.route( '/register/<name>/<port>')
 
 def register(name, port):
     for node in node_list:
@@ -24,7 +24,7 @@ def register(name, port):
 
 
 
-app.route('/launch')
+@app.route('/launch')
 def launch():
     for node in node_list:
         if not node['running']:

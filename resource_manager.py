@@ -13,11 +13,10 @@ app = Flask(__name__)
 
 proxy_url = {}
 
-proxy_url['light_proxy'] = os.environ.get("light_proxy_ip")
-# proxy_url['medium_proxy'] = os.environ.get("medium_proxy_ip")
-# proxy_url['heavy_proxy'] = os.environ.get("heavy_proxy_ip")
+proxy_url['light_pod'] = os.environ.get("light_proxy_ip")
+# proxy_url['medium_pod'] = os.environ.get("medium_proxy_ip")
+# proxy_url['heavy_pod'] = os.environ.get("heavy_proxy_ip")
 
-print(proxy_url)
 jobs =[]
 jobidcounter_fornextjob =0
 class Job:
@@ -52,7 +51,7 @@ def cloud_init():
     success = True
     for url in proxy_url.values():
         response = requests.get(url + '/cloudproxy/initalization')
-        if response.json["response"] != 'success':
+        if response.json()["response"] != 'success':
             success = False
 
     if success:
@@ -74,21 +73,18 @@ def cloud_pod_get(pod_id):
 def cloud_node(pod_id, node_name):
     if request.method == "POST":
         response = requests.post(proxy_url[pod_id] + '/cloudproxy/' + pod_id + '/nodes/' + node_name)
-        data = response.json()
-        response = data['node_status'] + ' node named ' + node_name + ' ' + data['result'] + ' under pod ' + str(data['pod_id'])
-        return jsonify({"response" : response})
+        return response.json()
         
     elif request.method == "GET":
         return requests.get(proxy_url['light_proxy_url'] + '/cloudproxy/' + pod_id + '/allNodes').json()
         
 
-@app.route('/cloud/rm/<node_name>', methods = ['DELETE'])
-def cloud_rm_node(node_name):
+@app.route('/cloud/<pod_id>/rm/<node_name>', methods = ['DELETE'])
+def cloud_rm_node(pod_id, node_name):
     if request.method == "DELETE":
-        response = requests.delete(proxy_url + '/cloudproxy/nodes/' + node_name)
-        data = response.json()
-        return jsonify({"response" : data['response']})
-
+        response = requests.delete(proxy_url[pod_id] + '/cloudproxy/nodes/' + node_name)
+        return response.json()
+        
 
 @app.route('/cloud/jobs',methods=['POST'])
 def cloud_launch():
@@ -103,10 +99,7 @@ def cloud_launch():
         else:
             job = Job("Running",jobf,next_node)
             response = requests.post(proxy_url+'/cloudproxy/jobs/'+str(job.id)+'/'+next_node,files ={'file':jobf})
-            data = response.json()
-            response =data["response"]
-            print(response)
-            return jsonify({"response" : response})
+            return response.json()
         
 
 if __name__ == '__main__':

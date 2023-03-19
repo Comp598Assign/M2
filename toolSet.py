@@ -1,3 +1,4 @@
+import pycurl
 import sys
 import requests
 from flask import Flask, jsonify, request
@@ -6,16 +7,17 @@ from urllib.parse import urlencode
 
 
 def cloud_init(url): #initalize default cluster
-    requests.get(url + '/cloud/initalization')
+    r = requests.get(url + '/cloud/initalization')
+    print(r.text)
+    
 
+def cloud_register_node(url, node_name, pod_id): #TODO specify pod type in request
+    r = requests.post(url + '/cloud/' + str(pod_id) + '/nodes/' + node_name)
+    print(r.text)
 
-def cloud_register_node(url, node_name, pod_id=-1): #TODO specify pod type in request
-    requests.post(url + '/cloud/' + str(pod_id) + '/nodes/' + node_name)
-
-
-def cloud_remove_node(url, node_name): #dispatch request to appropriate pod
-    requests.delete(url + '/cloud/rm/' + node_name)
-
+def cloud_remove_node(url, node_name, pod_id): #dispatch request to appropriate pod
+    r = requests.delete(url + '/cloud/' + pod_id + '/rm/' + node_name)
+    print(r.text)
 
 def cloud_launch_job_with_path(url, file_path):
     if os.path.isfile(file_path):
