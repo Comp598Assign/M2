@@ -10,9 +10,14 @@ load_dotenv()
 import os
 
 app = Flask(__name__)
-proxy_url = os.environ.get("ip")
-cURL = pycurl.Curl()
 
+proxy_url = {}
+
+proxy_url['light_proxy'] = os.environ.get("light_proxy_ip")
+# proxy_url['medium_proxy'] = os.environ.get("medium_proxy_ip")
+# proxy_url['heavy_proxy'] = os.environ.get("heavy_proxy_ip")
+
+print(proxy_url)
 jobs =[]
 jobidcounter_fornextjob =0
 class Job:
@@ -42,45 +47,47 @@ def dashboard():
     return render_template("Dashboard.html", data=data['result'])
 
 
-@app.route('/hello', methods = ['GET', 'POST'])
-def cloud():
-    if request.method == "GET":
-        print("A Client says hello")
-        response = "Cloud says hello"
-        return jsonify({"response" : response})
-
-@app.route('/cloud/clusters/initalization') #initalize default cluster
+@app.route('/cloud/initalization') #initalize default cluster
 def cloud_init():
-    response = requests.get(proxy_url + '/cloudproxy/default_cluster/initalization')
-    data = response.json()
-    response = data["response"]
-    return jsonify({"response" : response})
+    success = True
+    for url in proxy_url.values():
+        response = requests.get(url + '/cloudproxy/initalization')
+        if response.json["response"] != 'success':
+            success = False
 
-@app.route('/cloud/clusters/default_cluster/<pod_name>', methods = ['POST', 'DELETE', 'GET']) #rigster new pod
-def cloud_pod_registration_remove(pod_name):
+    if success:
+        result = 'successfully created light, medium and heavy resource pods'
+    else: 
+        result = 'initialization failed'
+
+    return jsonify({"response" : result})
+    
+
+@app.route('/cloud/allPods', methods = ['GET']) #get pod id 
+def cloud_pod_get(pod_id):
     if request.method == "GET":
-        response = requests.get(proxy_url + '/cloudproxy/default_cluster/' + pod_name)
-        data = response.json()
-        return jsonify(data)
+        return requests.get(proxy_url + '/cloudproxy/allPods')
+    
 
 #@app.route('/cloud/nodes/<name>', defaults={'pod_name': 'default'}, methods = ['POST', 'DELETE'])
-@app.route('/cloud/<pod_id>/nodes', methods = ['POST', 'DELETE', 'GET'])
-def cloud_register_delete_node(pod_id):
+@app.route('/cloud/<pod_id>/nodes/<node_name>', methods = ['POST', 'GET'])
+def cloud_node(pod_id, node_name):
     if request.method == "POST":
-        response = requests.post(proxy_url + '/cloudproxy/' + pod_id + '/nodes/' + request.get_json()['node_name'])
+        response = requests.post(proxy_url[pod_id] + '/cloudproxy/' + pod_id + '/nodes/' + node_name)
         data = response.json()
-        response = data['node_status'] + ' node named ' + request.get_json()['node_name'] + ' ' + data['result'] + ' under pod ' + str(data['pod_id'])
+        response = data['node_status'] + ' node named ' + node_name + ' ' + data['result'] + ' under pod ' + str(data['pod_id'])
         return jsonify({"response" : response})
-
-    elif request.method == "DELETE":
-        response = requests.delete(proxy_url + '/cloudproxy/nodes/' + request.get_json()['node_name'])
-        data = response.json()
-        return jsonify({"response" : data['response']})
         
     elif request.method == "GET":
-        response = requests.get(proxy_url + '/cloudproxy/' + pod_id + '/nodes/all')
+        return requests.get(proxy_url['light_proxy_url'] + '/cloudproxy/' + pod_id + '/allNodes').json()
+        
+
+@app.route('/cloud/rm/<node_name>', methods = ['DELETE'])
+def cloud_rm_node(node_name):
+    if request.method == "DELETE":
+        response = requests.delete(proxy_url + '/cloudproxy/nodes/' + node_name)
         data = response.json()
-        return jsonify({"response" : data['result']})
+        return jsonify({"response" : data['response']})
 
 
 @app.route('/cloud/jobs',methods=['POST'])
