@@ -11,7 +11,7 @@ containers=[]
 resource_manager_url=''
 client = docker.from_env()
 client.images.pull('ubuntu')
-
+port = '15000'
 
 class Pod:
     def __init__(self, id):
@@ -24,12 +24,13 @@ class Pod:
     
 class Node:
     idCounter = 0
-    def __init__(self, name, parentPod, container):
+    def __init__(self, name, parentPod, port):
         self.name = name
         self.status = 'NEW'
+        self.port = port
         self.parent = parentPod
         self.id = Node.idCounter
-        self.container = container
+        self.container = None
         parentPod.pod_nodes[name] = self
 
     def __str__(self):
@@ -53,6 +54,12 @@ def get_node(node_name):
         if node.name == node_name:
             return node
     return None
+
+def get_available_port():
+    p = port
+    port += 1
+    return p
+
 
 @app.route('/cloudproxy/initalization')
 def cloud_init():
@@ -102,8 +109,8 @@ def pod_register(pod_name):
 
 
 
-@app.route('/cloudproxy/<podId>/nodes/<name>', methods = ['POST'])
-def node_register(podId, name):
+@app.route('/cloudproxy/<podId>/nodes/<name>/<port>', methods = ['POST'])
+def node_register(podId, name, port):
     
     if request.method == "POST":
         if len(nodes) >= 20:
@@ -115,9 +122,8 @@ def node_register(podId, name):
                 result = 'node with the same already exists'
                 return jsonify({"result" : result})
             
-        container = client.containers.run('ubuntu', name = name, detach = True, tty = True)
-
-        nodes.append(Node(name, get_pod(podId), container))
+        # container = client.containers.run('ubuntu', name = name, detach = True, tty = True)
+        nodes.append(Node(name, get_pod(podId), get_available_port()))
         result = 'Added NEW node under ' + podId 
         return jsonify({"result" : result})
                
@@ -127,15 +133,11 @@ def node_rm(node_name):
     node = get_node(node_name)
     if node is None:
         return jsonify({"response" : "Node does not exist."})
-
-    if node.status == "New":
-        rm_node(node)
-    elif node.status == "Online":
-        # notify the Load Balancer that it should not redirect traffic through it anymore. 
-        # The Docker container can be shut down and the POD_ID should remove its reference to the node. 
-        # If this removed node was the last node of the pod, 
-        # then the pod is paused and responds to any incoming client requests
-        a = 0
+    rm_node(node)
+    # notify the Load Balancer that it should not redirect traffic through it anymore. 
+    # The Docker container can be shut down and the POD_ID should remove its reference to the node. 
+    # If this removed node was the last node of the pod, 
+    # then the pod is paused and responds to any incoming client requests
     return jsonify({"response" : "Removed node " + node_name + " from light pod"}) 
     # change response msg for other proxies
 
@@ -175,28 +177,36 @@ def cloud_lauch_job(job_id,next_node):
 @app.route('/cloudproxy/launch')
 def launch():
     for node in nodes:
-        if not node['running']:
-            node = launch_node(node['name'], node['port'])
+        if node.status == "NEW":
+            launch_node(node.name, node.port)
         if node is not None:
-            return jsonify ({'response' : 'success' ,'port' : node['port'], 'name ' : node['name'],'running' : node['running']})
-    return jsonify({'response ' : 'failure', 'reason' : 'Unknown reason'})
+            return jsonify ({'response' : 'success' ,'port' : node.port, 'name ' : node.name, 'status' : node.status})
+    return jsonify({'response ' : 'failure', 'result' : 'Unknown reason'})
 
 
 def launch_node(container_name, port_number):
     [img, logs] = client.images.build (path='/', rm=True ,dockerfile = './Dockerfile' )
+
     for container in client.containers.list():
         if container.name == container_name :
             container.remove(v=True, force=True)
-    client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'app.py', container_name],ports={'5000/tcp' : port_number})
-    index = -1
-    for i in range(len(nodes)):
-        node = nodes[i]
-        if container_name == node['name']:
-            index = i
-            nodes[i] = { 'port ' : port_number,'name ': container_name,'running': True}
-            break
-    print('Succesfully launched a node' )
-    return node[index]
+
+    client.containers.run(image=img, detach=True, name=container_name, command=['echo', 'hello', 'world'],ports={'5000/tcp' : port_number})
+    node = get_node(container_name)
+    node.container = container
+    node.status = "ONLINE"
+    
+    # msg = ('Successfully launched node: %s under light pod on port %s' % (node.name, node.port))
+    
+    # index = -1
+    # for i in range(len(nodes)):
+    #     node = nodes[i]
+    #     if container_name == node['name']:
+    #         index = i
+    #         nodes[i] = { 'port ' : port_number,'name ': container_name,'running': True}
+    #         break
+
+
 
 
 if __name__ == '__main__':

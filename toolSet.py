@@ -34,6 +34,8 @@ def cloud_abort_job(url, job_id):
 
 def cloud_launch_pod(url, pod_id):
     #launch pod
+    r = requests.get(url + '/cloud/' + pod_id + '/launch')
+    print(r.text)
     return 0
 
 def cloud_resume_pod(url, pod_id):
