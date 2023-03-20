@@ -40,7 +40,7 @@ def launch_node(container_name, port_number):
     # for container in client.containers.list():
     #     if container.name == container_name :
     #         container.remove(v=True, force=True)
-    client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'app.py',"/bin/bash", container_name],ports={'5000/tcp' : port_number}, tty=True)
+    client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'app.py', container_name],ports={'5000/tcp' : port_number}, tty=True)
     print(logs)
     index = -1
     for i in range(len(node_list)):
@@ -52,4 +52,4 @@ def launch_node(container_name, port_number):
     print('Succesfully launched a node' )
     return node_list[index]
 if __name__== '__main__' :
-    app. run(debug=True,host='0.0.0.0', port=5000)
+    app.run(debug=True,host='0.0.0.0', port=5000)
