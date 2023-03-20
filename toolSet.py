@@ -73,7 +73,7 @@ def main():
             cloud_remove_node(rm_url,commandstr[2],commandstr[3])
         elif command.startswith('cloud launch') and len(commandstr)==3:
             #launch pod
-            cloud_launch_job_with_path(rm_url,commandstr[2])
+            cloud_launch_pod(rm_url,commandstr[2])
         elif command.startswith('cloud resume') and len(commandstr)==3:
             cloud_resume_pod(rm_url,commandstr[2])
         elif command.startswith('cloud pause') and len(commandstr)==3:
