@@ -7,6 +7,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def main():
+    if len(sys.argv) != 2:
+        return 'require more arguments'
     n = 40
     matrix = [[random.random() for j in range(n)] for i in range(n)]
     power = 100
@@ -17,7 +19,8 @@ def main():
     for i in range(100):
         eigenvectors = matrix_multiply(result, eigenvectors)
     eigenvalues = [eigenvectors[i][i] for i in range(n)]
-    return eigenvalues
+    a = len(eigenvalues)
+    return "length of " + a + "from " + "medium server " +sys.argv[1]
 
 def matrix_inverse(matrix):
     n = len(matrix)
