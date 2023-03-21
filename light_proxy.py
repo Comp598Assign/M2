@@ -193,7 +193,7 @@ def launch_node(container_name, port_number):
     # for container in client.containers.list():
     #     if container.name == container_name :
     #         container.remove(v=True, force=True)
-    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'app.py', container_name],ports={'5000/tcp' : port_number}, tty=True)
+    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'medium.py', container_name],ports={'5000/tcp' : port_number}, tty=True)
     # container = client.containers.run(image='ubuntu', detach=True, name=container_name, command=['echo', 'hello', 'world'],ports={'5000/tcp' : port_number})
     node = get_node(container_name)
     node.container = container
