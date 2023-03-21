@@ -1,12 +1,15 @@
 import random
 from flask import Flask, jsonify
 import sys
-
-
+from datetime import datetime
+#Title: Chatgpt non sense cpu cosuming code
+#Script from chatGpt
+#https://chat.openai.com
 app = Flask(__name__)
 
 @app.route('/')
 def main():
+    strt_time = datetime.now()
     if len(sys.argv) != 2:
         return 'require more arguments'
     n = 10
@@ -20,7 +23,8 @@ def main():
         eigenvectors = matrix_multiply(result, eigenvectors)
     eigenvalues = [eigenvectors[i][i] for i in range(n)]
     a = len(eigenvalues)
-    return "length of " + str(a) + "from " + "light server " + sys.argv[1]
+    end_time = datetime.now()
+    return "length of " + str(a) + " from " + "light server " + sys.argv[1] + " start from " + str(strt_time) + "end at " + str(end_time)
 
 def matrix_inverse(matrix):
     n = len(matrix)
