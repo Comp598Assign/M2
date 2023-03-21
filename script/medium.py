@@ -1,7 +1,23 @@
 import random
+from flask import Flask, jsonify
+import sys
 
-n = 40
-matrix = [[random.random() for j in range(n)] for i in range(n)]
+
+app = Flask(__name__)
+
+@app.route('/')
+def main():
+    n = 40
+    matrix = [[random.random() for j in range(n)] for i in range(n)]
+    power = 100
+    result = matrix
+    for i in range(power - 1):
+        result = [[sum(a * b for a, b in zip(row, col)) for col in zip(*matrix_inverse(result))] for row in matrix]
+    eigenvectors = matrix
+    for i in range(100):
+        eigenvectors = matrix_multiply(result, eigenvectors)
+    eigenvalues = [eigenvectors[i][i] for i in range(n)]
+    return eigenvalues
 
 def matrix_inverse(matrix):
     n = len(matrix)
@@ -29,18 +45,10 @@ def matrix_inverse(matrix):
                 identity[row][col2] -= identity[col][col2] * factor
     return identity
 
-power = 100
-result = matrix
-for i in range(power - 1):
-    result = [[sum(a * b for a, b in zip(row, col)) for col in zip(*matrix_inverse(result))] for row in matrix]
 
 def matrix_multiply(A, B):
     return [[sum(a * b for a, b in zip(row, col)) for col in zip(*B)] for row in A]
 
-eigenvectors = matrix
-for i in range(100):
-    eigenvectors = matrix_multiply(result, eigenvectors)
 
-eigenvalues = [eigenvectors[i][i] for i in range(n)]
-
-print(eigenvalues)
+if __name__ == '__main__':
+    app.run(debug = True, host = '0.0.0.0' , port = 5000)
