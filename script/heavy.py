@@ -25,7 +25,7 @@ def main():
     eigenvalues = [eigenvectors[i][i] for i in range(n)]
     a = len(eigenvalues)
     end_time = datetime.now()
-    return "length of " + str(a) + " from " + "heavy server " +sys.argv[1] + " start from " + str(strt_time) + "end at " + str(end_time)
+    return "length of " + str(a) + " from " + "heavy server " +sys.argv[1] + " start from " + str(strt_time) + " end at " + str(end_time)
 def matrix_inverse(matrix):
     n = len(matrix)
     matrix_copy = [row[:] for row in matrix]
