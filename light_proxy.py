@@ -178,13 +178,11 @@ def cloud_lauch_job(job_id,next_node):
 @app.route('/cloudproxy/launch', methods = ['GET'])
 def launch():
     if request.method == 'GET':
-        print('we re here')
         for node in nodes:
             if node.status == "NEW":
                 launch_node(node.name, node.port)
-            if node is not None:
                 return jsonify ({'response' : 'success' ,'port' : node.port, 'name' : node.name, 'status' : node.status})
-        return jsonify({'response ' : 'failure', 'result' : 'Unknown reason'})
+        return jsonify({'response ' : 'failure', 'result' : 'No more available nodes'})
 
 
 def launch_node(container_name, port_number):

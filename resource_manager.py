@@ -42,7 +42,7 @@ def get_av_node():
     return data["av_node"]
 
 def get_proxy_url_no_port(pod_id):
-    return ":".join(proxy_url[pod_id].split(':').pop())
+    return proxy_url[pod_id].split(':')[1].strip('/')
 
 
 @app.route('/dashboard')
@@ -99,13 +99,14 @@ def cloud_launch_node(pod_id):
         response = requests.get(proxy_url[pod_id] + '/cloudproxy/launch')
         data = response.json()
         if data['response'] == 'success':
-            cmd = "echo 'experimental-mode on; add server servers/'" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + '| sudo socat stdio /var/run/haproxy.sock'
+            # print('we re here')
+            cmd = "echo 'experimental-mode on; add server light-servers/" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + "'| sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(cmd, shell = True, check = True)
 
-            enable_cmd = "echo 'experimental-mode on; set server servers/'" + data['name'] + ' state ready ' + '| sudo socat stdio /var/run/haproxy.sock'
+            enable_cmd = "echo 'experimental-mode on; set server light-servers/" + data['name'] + ' state ready ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(enable_cmd, shell = True, check = True)
 
-            msg = ('Successfully launched node: %s under light pod on port %s' % (data['name'], data['port']))
+            msg = ('Successfully launched node: %s under light pod on port %s, status: %s' % (data['name'], data['port'], data['status']))
         
         return jsonify({'response' : msg})
     
@@ -128,4 +129,4 @@ def cloud_launch():
 
 if __name__ == '__main__':
     app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5000)
