@@ -47,7 +47,8 @@ def rm_pod(pod):
 def rm_node(node):
     node.parent.pod_nodes.pop(node.name)
     nodes.remove(node)
-    node.container.remove(v=True, force=True)
+    if node.container is not None:
+        node.container.remove(v=True, force=True)
 
 def get_node(node_name):
     for node in nodes:
@@ -133,13 +134,9 @@ def node_register(podId, name):
 def node_rm(node_name):
     node = get_node(node_name)
     if node is None:
-        return jsonify({"response" : "Node does not exist."})
+        return jsonify({"response" : "failure", "msg" : "node does not exist."})
     rm_node(node)
-    # notify the Load Balancer that it should not redirect traffic through it anymore. 
-    # The Docker container can be shut down and the POD_ID should remove its reference to the node. 
-    # If this removed node was the last node of the pod, 
-    # then the pod is paused and responds to any incoming client requests
-    return jsonify({"response" : "Removed node " + node_name + " from light pod"}) 
+    return jsonify({"response" : "success", "name" : node.name, "port" : node.port, "status" : node.status}) 
     # change response msg for other proxies
 
 
@@ -189,7 +186,7 @@ def launch_node(container_name, port_number):
     # [img, logs] = client.images.build (path='/', rm=True ,dockerfile = './Dockerfile' )
 
     for container in client.containers.list():
-        if container.name == container_name :
+        if container.name == container_name:
             container.remove(v=True, force=True)
 
     [img, logs] = client.images.build (path='./', rm=True ,dockerfile = './Dockerfile' )

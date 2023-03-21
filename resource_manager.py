@@ -90,7 +90,20 @@ def cloud_node(pod_id, name):
 def cloud_rm_node(pod_id, name):
     if request.method == "DELETE":
         response = requests.delete(proxy_url[pod_id] + '/cloudproxy/nodes/' + name)
-        return response.json()
+        data = response.json()
+
+        if data["response"] == "failure":
+            return data
+        
+        elif data["response"] == "success" and data["status"] == "ONLINE":
+            disable_cmd = "echo 'experimental-mode on; set server light-servers/" + data['name'] + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
+            subprocess.run(disable_cmd, shell = True, check = True)
+            
+            del_cmd = "echo 'experimental-mode on; del server light-servers/" + data['name'] + "' | sudo socat stdio /run/haproxy/admin.sock"
+            subprocess.run(del_cmd, shell = True, check = True)
+            
+            msg = ("Removed node %s running on port %s" % (data['name'], data['port'])) 
+            return jsonify({"response" : "failure", "msg" : msg})
     
 
 @app.route('/cloud/<pod_id>/launch',methods=['GET'])
@@ -99,7 +112,7 @@ def cloud_launch_node(pod_id):
         response = requests.get(proxy_url[pod_id] + '/cloudproxy/launch')
         data = response.json()
         if data['response'] == 'success':
-            # print('we re here')
+            
             cmd = "echo 'experimental-mode on; add server light-servers/" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + "'| sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(cmd, shell = True, check = True)
 
