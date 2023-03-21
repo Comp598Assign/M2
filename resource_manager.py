@@ -97,9 +97,9 @@ def cloud_rm_node(pod_id, name):
 def cloud_launch_node(pod_id):
     if request.method == "GET":
         response = requests.get(proxy_url[pod_id] + '/cloudproxy/launch')
-        data = response.json
-        if data["result"] == 'success':
-            cmd = "echo 'experimental-mode on; add server servers/'" + data['name'] + ' ' + get_proxy_url_no_port() + ":" + data["port"] + '| sudo socat stdio /var/run/haproxy.sock'
+        data = response.json()
+        if data['response'] == 'success':
+            cmd = "echo 'experimental-mode on; add server servers/'" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + '| sudo socat stdio /var/run/haproxy.sock'
             subprocess.run(cmd, shell = True, check = True)
 
             enable_cmd = "echo 'experimental-mode on; set server servers/'" + data['name'] + ' state ready ' + '| sudo socat stdio /var/run/haproxy.sock'
@@ -128,4 +128,4 @@ def cloud_launch():
 
 if __name__ == '__main__':
     app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
