@@ -20,7 +20,7 @@ def main():
         eigenvectors = matrix_multiply(result, eigenvectors)
     eigenvalues = [eigenvectors[i][i] for i in range(n)]
     a = len(eigenvalues)
-    return "length of " + a + "from " + "light server " + sys.argv[1]
+    return "length of " + str(a) + "from " + "light server " + sys.argv[1]
 
 def matrix_inverse(matrix):
     n = len(matrix)
