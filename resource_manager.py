@@ -86,7 +86,7 @@ def cloud_node(pod_id, name):
         return requests.get(proxy_url['light_proxy_url'] + '/cloudproxy/' + pod_id + '/allNodes').json()
         
 
-@app.route('/cloud/<pod_id>/rm/<node_name>', methods = ['DELETE'])
+@app.route('/cloud/<pod_id>/rm/<name>', methods = ['DELETE'])
 def cloud_rm_node(pod_id, name):
     if request.method == "DELETE":
         response = requests.delete(proxy_url[pod_id] + '/cloudproxy/nodes/' + name)
@@ -103,7 +103,7 @@ def cloud_rm_node(pod_id, name):
             subprocess.run(del_cmd, shell = True, check = True)
             
             msg = ("Removed node %s running on port %s" % (data['name'], data['port'])) 
-            return jsonify({"response" : "failure", "msg" : msg})
+            return jsonify({"result" : "success", "response" : msg})
     
 
 @app.route('/cloud/<pod_id>/launch',methods=['GET'])
