@@ -24,7 +24,7 @@
    <table id="data2">
 		<thead>
          <h3>pod 2</h3>
-         <tr id = "counter1">
+         <tr id = "counter2">
 				
 				<th>Number of requests</th>
 			</tr>
@@ -39,7 +39,7 @@
    <table id="data3">
 		<thead>
          <h3>pod 3</h3>
-         <tr id = "counter1" >
+         <tr id = "counter3" >
 				
 				<th>Number of requests</th>
 			</tr>
@@ -53,9 +53,9 @@
 	</table>
 
 	<script>
-		var url = "http://192.168.0.148:5000/nodes"; // replace with your API URL
-      var url2 = "";
-      var url3 ="";
+		var url = "http://10.0.0.213:5000/nodes"; // replace with your API URL
+      	var url2 = "";
+      	var url3 = "";
 		function updateData() {
 			$.get(url, function(data) {
 				// parse the JSON data from the API response
@@ -67,11 +67,14 @@
 				// clear the old data from the table
             	$("#counter1").empty();
 				$("#data tbody").empty();
-            	$("counter1").append("<th>Number of requests</th>"+"<th>"+firstValue+"</th>")
-				delete values[firstKey]; // delete the first property from the object
+            	$("#counter1").append("<th>Number of requests</th>"+"<th>"+firstValue.counter+"</th>")
+				//delete values[firstKey]; // delete the first property from the object
+				values.shift()
 				// add the new data to the table
+				console.log(values)
 				$.each(values, function(index,value) {
 					console.log("Object " + index + ": node = " + value.node + ", status = " + value.status);
+					
 					$("#data tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
 				});
 

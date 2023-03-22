@@ -2,6 +2,8 @@ import subprocess
 import docker
 from flask import Flask, jsonify, request
 import os.path
+import json
+
 app = Flask(__name__)
 global_list = []
 nodes = []
@@ -191,6 +193,8 @@ def get_online_nodes():
 @app.route('/cloudproxy/launch', methods = ['GET'])
 def launch():
     if request.method == 'GET':
+        global numberofrequests
+        numberofrequests += 1
         for node in nodes:
             if node.status == "NEW":
                 launch_node(node.name, node.port)
