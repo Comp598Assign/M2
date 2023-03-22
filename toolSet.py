@@ -39,11 +39,15 @@ def cloud_launch_pod(url, pod_id):
     return 0
 
 def cloud_resume_pod(url, pod_id):
+    r = requests.get(url + '/cloud/' + pod_id + '/resume')
+    print(r.text)
     #resume pod
     #If there are any nodes with the “ONLINE” status, then the Load Balancer should include these in its configuration so that it can start sending traffic through to this node again.
     return 0
 
 def cloud_pause_pod(url, pod_id):
+    r = requests.get(url + '/cloud/' + pod_id + '/pause')
+    print(r.text)
     #All the nodes with the “ONLINE” status inside this pod are removed and the Load Balancer is notified so that no more incoming client request on this pod will receive a response
     return 0
 

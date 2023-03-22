@@ -172,6 +172,13 @@ def cloud_lauch_job(job_id,next_node):
         return jsonify({"response": "fail to launch job"})
 
 
+@app.route('/cloudproxy/online_nodes', methods = ['GET'])
+def get_online_nodes():
+    if request.method == 'GET':
+        node_list = map(lambda n : n.name, filter(lambda n : (n.status == "ONLINE"), nodes))
+        return jsonify({'node_list' : node_list})
+    
+
 @app.route('/cloudproxy/launch', methods = ['GET'])
 def launch():
     if request.method == 'GET':
@@ -181,7 +188,6 @@ def launch():
                 return jsonify ({'response' : 'success' ,'port' : node.port, 'name' : node.name, 'status' : node.status})
         return jsonify({'response ' : 'failure', 'result' : 'No more available nodes'})
 
-
 def launch_node(container_name, port_number):
     # [img, logs] = client.images.build (path='/', rm=True ,dockerfile = './Dockerfile' )
 
@@ -190,26 +196,11 @@ def launch_node(container_name, port_number):
             container.remove(v=True, force=True)
 
     [img, logs] = client.images.build (path='./', rm=True ,dockerfile = './Dockerfile' )
-    # for container in client.containers.list():
-    #     if container.name == container_name :
-    #         container.remove(v=True, force=True)
     container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'medium.py', container_name],ports={'5000/tcp' : port_number}, tty=True)
     # container = client.containers.run(image='ubuntu', detach=True, name=container_name, command=['echo', 'hello', 'world'],ports={'5000/tcp' : port_number})
     node = get_node(container_name)
     node.container = container
     node.status = "ONLINE"
-
-    # msg = ('Successfully launched node: %s under light pod on port %s' % (node.name, node.port))
-    
-    # index = -1
-    # for i in range(len(nodes)):
-    #     node = nodes[i]
-    #     if container_name == node['name']:
-    #         index = i
-    #         nodes[i] = { 'port ' : port_number,'name ': container_name,'running': True}
-    #         break
-
-
 
 
 if __name__ == '__main__':

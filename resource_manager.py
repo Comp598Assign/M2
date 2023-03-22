@@ -107,14 +107,14 @@ def cloud_rm_node(pod_id, name):
     
 
 @app.route('/cloud/<pod_id>/launch',methods=['GET'])
-def cloud_launch_node(pod_id):
+def cloud_launch_pod(pod_id):
     if request.method == "GET":
         response = requests.get(proxy_url[pod_id] + '/cloudproxy/launch')
         data = response.json()
         if data['response'] == 'success':
             
-            cmd = "echo 'experimental-mode on; add server light-servers/" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + "'| sudo socat stdio /run/haproxy/admin.sock"
-            subprocess.run(cmd, shell = True, check = True)
+            add_cmd = "echo 'experimental-mode on; add server light-servers/" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + "'| sudo socat stdio /run/haproxy/admin.sock"
+            subprocess.run(add_cmd, shell = True, check = True)
 
             enable_cmd = "echo 'experimental-mode on; set server light-servers/" + data['name'] + ' state ready ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(enable_cmd, shell = True, check = True)
@@ -123,6 +123,25 @@ def cloud_launch_node(pod_id):
         
         return jsonify({'response' : msg})
     
+@app.route('/cloud/<pod_id>/resume',methods=['GET'])
+def cloud_resume_pod(pod_id):
+    if request.method == "GET":
+        response = requests.get(proxy_url[pod_id] + '/cloudproxy/online_nodes')
+        data = response.json()
+        for name in data['node_list']:
+            enable_cmd = "echo 'experimental-mode on; set server light-servers/" + name + ' state ready ' + "' | sudo socat stdio /run/haproxy/admin.sock"
+            subprocess.run(enable_cmd, shell = True, check = True)
+
+
+@app.route('/cloud/<pod_id>/pause',methods=['GET'])
+def cloud_pause_pod(pod_id):
+    if request.method == "GET":
+        response = requests.get(proxy_url[pod_id] + '/cloudproxy/online_nodes')
+        data = response.json()
+        for name in data['node_list']:
+            disable_cmd = "echo 'experimental-mode on; set server light-servers/" + name + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
+            subprocess.run(disable_cmd, shell = True, check = True)
+
 
 @app.route('/cloud/jobs',methods=['POST'])
 def cloud_launch():
