@@ -60,12 +60,15 @@
 			$.get(url, function(data) {
 				// parse the JSON data from the API response
 				var values = JSON.parse(data);
-
+				var keys = Object.keys(values); // get all keys of the object as an array
+				var firstKey = keys.shift(); // remove the first key from the array and return it
+				var firstValue = values[firstKey]; // get the value of the first key
+				
 				// clear the old data from the table
-            $("#counter1").empty();
+            	$("#counter1").empty();
 				$("#data tbody").empty();
-            $("counter1").append("<th>"+values.items[0].counter+"</th>")
-            delete values.items[0];
+            	$("counter1").append("<th>Number of requests</th>"+"<th>"+firstValue+"</th>")
+				delete values[firstKey]; // delete the first property from the object
 				// add the new data to the table
 				$.each(values, function(index,value) {
 					console.log("Object " + index + ": node = " + value.node + ", status = " + value.status);
