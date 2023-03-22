@@ -152,7 +152,7 @@ def nodes_list(podId):
 @app.route('/cloudproxy/online_nodes', methods = ['GET'])
 def get_online_nodes():
     if request.method == 'GET':
-        node_list = map(lambda n : n.name, filter(lambda n : (n.status == "ONLINE"), nodes))
+        node_list = list(map(lambda n : n.name, filter(lambda n : (n.status == "ONLINE"), nodes)))
         return jsonify({'node_list' : node_list})
     
 
@@ -175,7 +175,7 @@ def launch_node(container_name, port_number):
             container.remove(v=True, force=True)
 
     [img, logs] = client.images.build (path='./', rm=True ,dockerfile = './Dockerfile' )
-    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'medium.py', container_name],ports={'5000/tcp' : port_number}, tty=True, cpu_quota = 80000, mem_limit = '500m')
+    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'light.py', container_name],ports={'5000/tcp' : port_number}, tty=True, cpu_quota = 80000, mem_limit = '500m')
     # container = client.containers.run(image='ubuntu', detach=True, name=container_name, command=['echo', 'hello', 'world'],ports={'5000/tcp' : port_number})
     node = get_node(container_name)
     node.container = container

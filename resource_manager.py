@@ -15,8 +15,8 @@ app = Flask(__name__)
 proxy_url = {}
 
 proxy_url['light_pod'] = os.environ.get("light_proxy_ip")
-# proxy_url['medium_pod'] = os.environ.get("medium_proxy_ip")
-# proxy_url['heavy_pod'] = os.environ.get("heavy_proxy_ip")
+proxy_url['medium_pod'] = os.environ.get("medium_proxy_ip")
+proxy_url['heavy_pod'] = os.environ.get("heavy_proxy_ip")
 
 
 
@@ -89,10 +89,10 @@ def cloud_rm_node(pod_id, name):
             return data
         
         elif data["response"] == "success" and data["status"] == "ONLINE":
-            disable_cmd = "echo 'experimental-mode on; set server light-servers/" + data['name'] + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
+            disable_cmd = "echo 'experimental-mode on; set server " + pod_id.split('_')[0] + "-servers/" + data['name'] + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(disable_cmd, shell = True, check = True)
             
-            del_cmd = "echo 'experimental-mode on; del server light-servers/" + data['name'] + "' | sudo socat stdio /run/haproxy/admin.sock"
+            del_cmd = "echo 'experimental-mode on; del server " + pod_id.split('_')[0] + "-servers/" + data['name'] + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(del_cmd, shell = True, check = True)
             
             msg = ("Removed node %s running on port %s" % (data['name'], data['port'])) 
@@ -106,13 +106,13 @@ def cloud_launch_pod(pod_id):
         data = response.json()
         if data['response'] == 'success':
             
-            add_cmd = "echo 'experimental-mode on; add server light-servers/" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + "'| sudo socat stdio /run/haproxy/admin.sock"
+            add_cmd = "echo 'experimental-mode on; add server " + pod_id.split('_')[0] + "-servers/" + data['name'] + ' ' + get_proxy_url_no_port(pod_id) + ":" + data["port"] + "'| sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(add_cmd, shell = True, check = True)
 
-            enable_cmd = "echo 'experimental-mode on; set server light-servers/" + data['name'] + ' state ready ' + "' | sudo socat stdio /run/haproxy/admin.sock"
+            enable_cmd = "echo 'experimental-mode on; set server " + pod_id.split('_')[0] + "-servers/" + data['name'] + ' state ready ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(enable_cmd, shell = True, check = True)
 
-            msg = ('Successfully launched node: %s under light pod on port %s, status: %s' % (data['name'], data['port'], data['status']))
+            msg = ('Successfully launched node: %s under %s pod on port %s, status: %s' % (data['name'], pod_id.split('_')[0], data['port'], data['status']))
         
         return jsonify({'response' : msg})
     
@@ -123,8 +123,10 @@ def cloud_resume_pod(pod_id):
         response = requests.get(proxy_url[pod_id] + '/cloudproxy/online_nodes')
         data = response.json()
         for name in data['node_list']:
-            enable_cmd = "echo 'experimental-mode on; set server light-servers/" + name + ' state ready ' + "' | sudo socat stdio /run/haproxy/admin.sock"
+            enable_cmd = "echo 'experimental-mode on; set server " + pod_id.split('_')[0] + "-servers/" + name + ' state ready ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(enable_cmd, shell = True, check = True)
+
+        return jsonify({'response' : pod_id + " resumed"})
 
 
 @app.route('/cloud/<pod_id>/pause',methods=['GET'])
@@ -133,8 +135,10 @@ def cloud_pause_pod(pod_id):
         response = requests.get(proxy_url[pod_id] + '/cloudproxy/online_nodes')
         data = response.json()
         for name in data['node_list']:
-            disable_cmd = "echo 'experimental-mode on; set server light-servers/" + name + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
+            disable_cmd = "echo 'experimental-mode on; set server " + pod_id.split('_')[0] + "-servers/" + name + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(disable_cmd, shell = True, check = True)
+
+        return jsonify({'response' : pod_id + " paused"})
   
 
 if __name__ == '__main__':
