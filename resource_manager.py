@@ -47,10 +47,7 @@ def get_proxy_url_no_port(pod_id):
 
 @app.route('/dashboard')
 def dashboard():
-    response = requests.get(proxy_url + '/cloudproxy/allPods/nodes/all')
-    data = response.json()
-    print(data)
-    return render_template("Dashboard.html", data=data['result'])
+    return render_template("Dashboard.html")
 
 
 @app.route('/cloud/initalization') #initalize default cluster

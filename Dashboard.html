@@ -1,10 +1,84 @@
-<table border = 1>
-    {% for key, value in data.items() %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dynamic Monitor Webpage</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+	<h1>Dynamic Monitor Webpage</h1>
+	<table id="data">
+		<thead>
+         <h3>pod 1</h3>
+         <tr id = "counter1">
+				
+				<th >Number of requests</th>
+			</tr>
+			<tr>
+				<th>Node</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+   <table id="data2">
+		<thead>
+         <h3>pod 2</h3>
+         <tr id = "counter1">
+				
+				<th>Number of requests</th>
+			</tr>
+			<tr>
+				<th>Node</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+   <table id="data3">
+		<thead>
+         <h3>pod 3</h3>
+         <tr id = "counter1" >
+				
+				<th>Number of requests</th>
+			</tr>
+			<tr>
+				<th>Node</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
 
-    <tr>
-       <th> Node: {{ key }} </th>
-       <td> Status: {{ value[1] }} </td>
-    </tr>
+	<script>
+		var url = "http://192.168.0.148:5000/nodes"; // replace with your API URL
+      var url2 = "";
+      var url3 ="";
+		function updateData() {
+			$.get(url, function(data) {
+				// parse the JSON data from the API response
+				var values = JSON.parse(data);
 
-    {% endfor %}
- </table>
+				// clear the old data from the table
+            $("#counter1").empty();
+				$("#data tbody").empty();
+            $("counter1").append("<th>"+values.items[0].counter+"</th>")
+            delete values.items[0];
+				// add the new data to the table
+				$.each(values, function(index,value) {
+					console.log("Object " + index + ": node = " + value.node + ", status = " + value.status);
+					$("#data tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
+				});
+
+				// call updateData() again after a delay
+				setTimeout(updateData, 1000);
+			});
+		}
+
+		// call updateData() to start updating the data
+		updateData();
+	</script>
+</body>
+</html>
