@@ -85,7 +85,7 @@ def cloud_rm_node(pod_id, name):
         response = requests.delete(proxy_url[pod_id] + '/cloudproxy/nodes/' + name)
         data = response.json()
 
-        if data["response"] == "failure":
+        if data["result"] == "failure":
             return data
         
         elif data["response"] == "success" and data["status"] == "ONLINE":
@@ -113,7 +113,9 @@ def cloud_launch_pod(pod_id):
             subprocess.run(enable_cmd, shell = True, check = True)
 
             msg = ('Successfully launched node: %s under %s pod on port %s, status: %s' % (data['name'], pod_id.split('_')[0], data['port'], data['status']))
-        
+
+        else:
+            msg = data['result']
         return jsonify({'response' : msg})
     
     

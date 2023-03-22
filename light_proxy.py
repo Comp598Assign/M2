@@ -120,7 +120,7 @@ def node_register(podId, name):
 def node_rm(node_name):
     node = get_node(node_name)
     if node is None:
-        return jsonify({"response" : "failure", "msg" : "node does not exist."})
+        return jsonify({"result" : "failure", "response" : "node does not exist."})
     rm_node(node)
     return jsonify({"response" : "success", "name" : node.name, "port" : node.port, "status" : node.status}) 
     # change response msg for other proxies
@@ -169,7 +169,7 @@ def launch():
             if node.status == "NEW":
                 launch_node(node.name, node.port)
                 return jsonify ({'response' : 'success' ,'port' : node.port, 'name' : node.name, 'status' : node.status})
-        return jsonify({'response ' : 'failure', 'result' : 'No more available nodes'})
+        return jsonify({'response' : 'failure', 'result' : 'No more available nodes'})
 
 def launch_node(container_name, port_number):
     # [img, logs] = client.images.build (path='/', rm=True ,dockerfile = './Dockerfile' )
