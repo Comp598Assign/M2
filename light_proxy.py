@@ -72,13 +72,6 @@ def cloud_init():
         # medium_pod = Pod("medium_pod")
         # heavy_pod = Pod("heavy_pod")
 
-        #get rm ip
-        # headers_list = request.headers.getlist("X-Forwarded-For")
-        # ip = headers_list[0] if headers_list else request.remote_addr
-        # global resource_manager_url
-        # resource_manager_url = 'http://'+ip+':5000'
-        #
-
         return jsonify({"response" : 'success'})
 
 @app.route('/cloudproxy/get_nextav_node',methods=['GET'])
@@ -88,6 +81,7 @@ def cloud_getnext_node():
                 if node.status == 'NEW':
                     return jsonify({"av_node":node.name})
             return jsonify({"av_node":None})
+        
         
 @app.route('/default_cluster/pods', methods = ['GET', 'POST'])
 def pod_list():
@@ -185,7 +179,7 @@ def launch_node(container_name, port_number):
             container.remove(v=True, force=True)
 
     [img, logs] = client.images.build (path='./', rm=True ,dockerfile = './Dockerfile' )
-    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'medium.py', container_name],ports={'5000/tcp' : port_number}, tty=True)
+    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'medium.py', container_name],ports={'5000/tcp' : port_number}, tty=True, cpu_quota = 30000, mem_limit = '100m')
     # container = client.containers.run(image='ubuntu', detach=True, name=container_name, command=['echo', 'hello', 'world'],ports={'5000/tcp' : port_number})
     node = get_node(container_name)
     node.container = container

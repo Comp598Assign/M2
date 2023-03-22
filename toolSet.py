@@ -62,14 +62,7 @@ def main():
             cloud_resume_pod(rm_url,commandstr[2])
         elif command.startswith('cloud pause') and len(commandstr)==3:
             cloud_pause_pod(rm_url,commandstr[2])
-        elif command.startswith('cloud abort') and len(commandstr)==3:
-            cloud_abort_job(rm_url,commandstr[2])
-        elif command == 'cloud pod ls':
-            cloud_pod_ls(rm_url)
-        elif command.startswith('cloud node ls') and len(commandstr)==3:
-            cloud_node_ls(rm_url)
-        elif command.startswith('cloud node ls') and len(commandstr)==4:
-            cloud_node_ls(rm_url, commandstr[3])
+        
 
 if __name__ == '__main__':
     main()

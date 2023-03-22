@@ -56,7 +56,7 @@ def nodes(pod_id):
     return json.dumps(str.json())
 
 
-@app.route('/cloud/initalization') #initalize default cluster
+@app.route('/cloud/initalization')
 def cloud_init():
     success = True
     for url in proxy_url.values():
@@ -72,22 +72,12 @@ def cloud_init():
     return jsonify({"response" : result})
     
 
-@app.route('/cloud/allPods', methods = ['GET']) #get pod id 
-def cloud_pod_get(pod_id):
-    if request.method == "GET":
-        return requests.get(proxy_url[pod_id] + '/cloudproxy/allPods')
-    
-
-#@app.route('/cloud/nodes/<name>', defaults={'pod_name': 'default'}, methods = ['POST', 'DELETE'])
 @app.route('/cloud/<pod_id>/nodes/<name>/', methods = ['POST', 'GET'])
 def cloud_node(pod_id, name):
     if request.method == "POST":
         response = requests.post(proxy_url[pod_id] + '/cloudproxy/' + pod_id + '/nodes/' + name)
         return response.json()
-        
-    elif request.method == "GET":
-        return requests.get(proxy_url['light_proxy_url'] + '/cloudproxy/' + pod_id + '/allNodes').json()
-        
+
 
 @app.route('/cloud/<pod_id>/rm/<name>', methods = ['DELETE'])
 def cloud_rm_node(pod_id, name):
@@ -125,6 +115,7 @@ def cloud_launch_pod(pod_id):
             msg = ('Successfully launched node: %s under light pod on port %s, status: %s' % (data['name'], data['port'], data['status']))
         
         return jsonify({'response' : msg})
+    
     
 @app.route('/cloud/<pod_id>/resume',methods=['GET'])
 def cloud_resume_pod(pod_id):
