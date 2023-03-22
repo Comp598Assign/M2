@@ -53,9 +53,9 @@
 	</table>
 
 	<script>
-		var url = "http://10.0.0.213:5000/nodes/light"; // replace with your API URL
-      	var url2 = "http://10.0.0.213:5000/nodes/medium";
-      	var url3 = "http://10.0.0.213:5000/nodes/heavy";
+		var url = "http://10.0.0.213:5000/nodes/light_pod"; // replace with your API URL
+      	var url2 = "http://10.0.0.213:5000/nodes/medium_pod";
+      	var url3 = "http://10.0.0.213:5000/nodes/heavy_pod";
 		function updateData() {
 			$.get(url, function(data) {
 				// parse the JSON data from the API response
@@ -87,8 +87,8 @@
 				var firstValue = values[firstKey]; // get the value of the first key
 				
 				// clear the old data from the table
-            	$("#counter1").empty();
-				$("#data tbody").empty();
+            	$("#counter2").empty();
+				$("#data2 tbody").empty();
             	$("#counter2").append("<th>Number of requests</th>"+"<th>"+firstValue.counter+"</th>")
 				//delete values[firstKey]; // delete the first property from the object
 				values.shift()
@@ -97,7 +97,7 @@
 				$.each(values, function(index,value) {
 					console.log("Object " + index + ": node = " + value.node + ", status = " + value.status);
 					
-					$("#data tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
+					$("#data2 tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
 				});
 				//setTimeout(updateData, 1000);
 			})
@@ -110,7 +110,7 @@
 				
 				// clear the old data from the table
             	$("#counter1").empty();
-				$("#data tbody").empty();
+				$("#data3 tbody").empty();
             	$("#counter3").append("<th>Number of requests</th>"+"<th>"+firstValue.counter+"</th>")
 				//delete values[firstKey]; // delete the first property from the object
 				values.shift()
@@ -119,7 +119,7 @@
 				$.each(values, function(index,value) {
 					console.log("Object " + index + ": node = " + value.node + ", status = " + value.status);
 					
-					$("#data tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
+					$("#data3 tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
 				});
 				setTimeout(updateData, 1000);
 			})
