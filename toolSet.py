@@ -15,28 +15,18 @@ def cloud_register_node(url, node_name, pod_id): #TODO specify pod type in reque
     r = requests.post(url + '/cloud/' + str(pod_id) + '/nodes/' + node_name)
     print(r.text)
 
+
 def cloud_remove_node(url, node_name, pod_id): #dispatch request to appropriate pod
     r = requests.delete(url + '/cloud/' + pod_id + '/rm/' + node_name)
     print(r.text)
 
-def cloud_launch_job_with_path(url, file_path):
-    if os.path.isfile(file_path):
-        files = {'file':open(file_path,'rb')}
-        ret = requests.post(url+'/cloud/jobs',files =files)
-        if ret.ok:
-            print("ok")
-        else :
-            print("error")
-
-def cloud_abort_job(url, job_id):
-    #todo
-    return 0
 
 def cloud_launch_pod(url, pod_id):
     #launch pod
     r = requests.get(url + '/cloud/' + pod_id + '/launch')
     print(r.text)
     return 0
+
 
 def cloud_resume_pod(url, pod_id):
     r = requests.get(url + '/cloud/' + pod_id + '/resume')
@@ -45,23 +35,13 @@ def cloud_resume_pod(url, pod_id):
     #If there are any nodes with the “ONLINE” status, then the Load Balancer should include these in its configuration so that it can start sending traffic through to this node again.
     return 0
 
+
 def cloud_pause_pod(url, pod_id):
     r = requests.get(url + '/cloud/' + pod_id + '/pause')
     print(r.text)
     #All the nodes with the “ONLINE” status inside this pod are removed and the Load Balancer is notified so that no more incoming client request on this pod will receive a response
     return 0
 
-def  cloud_pod_ls(url):
-    response = requests.get(url + '/cloud/allPods')
-    data = response.json()
-    for pod_id, node_number in data:
-        print("pod_id: %s has %d nodes" % (pod_id, node_number))
-    
-def cloud_node_ls(url, pod_id='allPods'):
-    response = requests.get(url + '/cloud/' + pod_id + '/nodes/all')
-    data = response.json()
-    for k, v in data["response"].items():
-        print("node: %s; id: %s; status: %s" % (k, v[0], v[1]))
 
 def main():
     rm_url = sys.argv[1]

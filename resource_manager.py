@@ -49,22 +49,12 @@ def get_proxy_url_no_port(pod_id):
 def dashboard():
     return render_template("Dashboard.html")
 
-@app.route('/nodes/light')
-def nodes():
-    str = requests.get(proxy_url['light_pod'] + '/cloudproxy/light_pod/allNodes')
+@app.route('/nodes/<pod_id>')
+def nodes(pod_id):
+    str = requests.get(proxy_url[pod_id] + '/cloudproxy/' + pod_id + '/allNodes')
     print(str.json())
     return json.dumps(str.json())
 
-@app.route('/nodes/medium')
-def nodes():
-    str = requests.get(proxy_url['medium_pod'] + '/cloudproxy/medium_pod/allNodes')
-    print(str.json())
-    return json.dumps(str.json())
-@app.route('/nodes/heavy')
-def nodes():
-    str = requests.get(proxy_url['heavy_pod'] + '/cloudproxy/heavy_pod/allNodes')
-    print(str.json())
-    return json.dumps(str.json())
 
 @app.route('/cloud/initalization') #initalize default cluster
 def cloud_init():
@@ -154,23 +144,7 @@ def cloud_pause_pod(pod_id):
         for name in data['node_list']:
             disable_cmd = "echo 'experimental-mode on; set server light-servers/" + name + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(disable_cmd, shell = True, check = True)
-
-
-@app.route('/cloud/jobs',methods=['POST'])
-def cloud_launch():
-    if request.method == 'POST':
-        print("request to post file")
-        jobf = request.files['file']
-        #
-        next_node = get_av_node()
-        if next_node == None:
-            job = Job("Registered",jobf)
-            jobs.append(job)
-        else:
-            job = Job("Running",jobf,next_node)
-            response = requests.post(proxy_url+'/cloudproxy/jobs/'+str(job.id)+'/'+next_node,files ={'file':jobf})
-            return response.json()
-        
+  
 
 if __name__ == '__main__':
     app.config['TEMPLATES_AUTO_RELOAD'] = True

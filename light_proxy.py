@@ -103,19 +103,9 @@ def pod_list():
 def test():
     return global_list[0]
 
-@app.route('/cloudproxy/allPods', methods = ['GET'])
-def pod_register(pod_name):
-    if request.method == "GET":
-        response = {}
-        for pod in pods:
-            response[pod.id] = [len(pod.pod_nodes)]
-        return jsonify(response)
-
-
 
 @app.route('/cloudproxy/<podId>/nodes/<name>', methods = ['POST'])
 def node_register(podId, name):
-    
     if request.method == "POST":
         if len(nodes) >= 20:
             result = 'Pod capacity has been reached (max 20 nodes)'
@@ -167,20 +157,6 @@ def nodes_list(podId):
         else:
             result = "failure"
     return json.dumps(result)
-
-
-@app.route('/cloudproxy/jobs/<job_id>/<next_node>',methods=['POST'])
-def cloud_lauch_job(job_id,next_node):
-    if request.method == 'POST':
-        jobf = request.files['file']
-        file_name = next_node+'.log'
-        container = client.containers.list()[0]
-        with open(file_name,'w') as outfile:
-            subprocess.Popen(['docker','exec',container.id,'bash','-c',jobf.read().decode("utf-8")],stdout=outfile)      
-        print(job_id+"sucessfully run")
-        return jsonify({"response": "sucess"})
-    else:
-        return jsonify({"response": "fail to launch job"})
 
 
 @app.route('/cloudproxy/online_nodes', methods = ['GET'])
