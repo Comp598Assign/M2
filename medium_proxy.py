@@ -120,7 +120,7 @@ def node_rm(node_name):
     if node is None:
         return jsonify({"result" : "failure", "response" : "node does not exist."})
     rm_node(node)
-    return jsonify({"response" : "success", "name" : node.name, "port" : node.port, "status" : node.status}) 
+    return jsonify({"result" : "success", "name" : node.name, "port" : node.port, "status" : node.status}) 
     
 
 
