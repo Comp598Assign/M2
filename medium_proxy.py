@@ -1,3 +1,4 @@
+import json
 import subprocess
 import docker
 from flask import Flask, jsonify, request
@@ -11,7 +12,7 @@ containers=[]
 resource_manager_url=''
 client = docker.from_env()
 client.images.pull('ubuntu')
-
+numberofrequests =0
 
 class Pod:
     def __init__(self, id):
@@ -143,19 +144,29 @@ def node_rm(node_name):
 
 @app.route('/cloudproxy/<podId>/allNodes', methods = ['GET'])
 def nodes_list(podId):
-    result={}
+    result=[]
+    new_dict = {}
+    global numberofrequests
+    new_dict['counter'] = numberofrequests
+    result.append( new_dict)
     if podId == "allPods":
         for node in nodes:
-            result[node.name]=[str(node.id), node.status]
+             new_dict = {}
+             new_dict['node'] = node.name
+             new_dict['status'] = node.status
+             result.append( new_dict)
     else:
         pod = get_pod(podId)
         if pod is not None:
             for node in pod.pod_nodes.values():
-                result[node.name]=[str(node.id), node.status]
+                new_dict = {}
+                new_dict['node'] = node.name
+                new_dict['status'] = node.status
+                result.append( new_dict)
         else:
             result = "failure"
+    return json.dumps(result)
 
-    return jsonify({'response' : result})
 
 
 @app.route('/cloudproxy/jobs/<job_id>/<next_node>',methods=['POST'])
@@ -174,6 +185,8 @@ def cloud_lauch_job(job_id,next_node):
 
 @app.route('/cloudproxy/launch')
 def launch():
+    global numberofrequests
+    numberofrequests += 1
     for node in nodes:
         if not node['running']:
             node = launch_node(node['name'], node['port'])

@@ -184,6 +184,8 @@ def cloud_lauch_job(job_id,next_node):
 
 @app.route('/cloudproxy/launch')
 def launch():
+    global numberofrequests
+    numberofrequests += 1
     for node in nodes:
         if not node['running']:
             node = launch_node(node['name'], node['port'])

@@ -53,9 +53,9 @@
 	</table>
 
 	<script>
-		var url = "http://10.0.0.213:5000/nodes"; // replace with your API URL
-      	var url2 = "";
-      	var url3 = "";
+		var url = "http://10.0.0.213:5000/nodes/light"; // replace with your API URL
+      	var url2 = "http://10.0.0.213:5000/nodes/medium";
+      	var url3 = "http://10.0.0.213:5000/nodes/heavy";
 		function updateData() {
 			$.get(url, function(data) {
 				// parse the JSON data from the API response
@@ -77,10 +77,53 @@
 					
 					$("#data tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
 				});
-
-				// call updateData() again after a delay
+				//setTimeout(updateData, 1000);
+			})
+			$.get(url2, function(data) {
+				// parse the JSON data from the API response
+				var values = JSON.parse(data);
+				var keys = Object.keys(values); // get all keys of the object as an array
+				var firstKey = keys.shift(); // remove the first key from the array and return it
+				var firstValue = values[firstKey]; // get the value of the first key
+				
+				// clear the old data from the table
+            	$("#counter1").empty();
+				$("#data tbody").empty();
+            	$("#counter2").append("<th>Number of requests</th>"+"<th>"+firstValue.counter+"</th>")
+				//delete values[firstKey]; // delete the first property from the object
+				values.shift()
+				// add the new data to the table
+				console.log(values)
+				$.each(values, function(index,value) {
+					console.log("Object " + index + ": node = " + value.node + ", status = " + value.status);
+					
+					$("#data tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
+				});
+				//setTimeout(updateData, 1000);
+			})
+			$.get(url3, function(data) {
+				// parse the JSON data from the API response
+				var values = JSON.parse(data);
+				var keys = Object.keys(values); // get all keys of the object as an array
+				var firstKey = keys.shift(); // remove the first key from the array and return it
+				var firstValue = values[firstKey]; // get the value of the first key
+				
+				// clear the old data from the table
+            	$("#counter1").empty();
+				$("#data tbody").empty();
+            	$("#counter3").append("<th>Number of requests</th>"+"<th>"+firstValue.counter+"</th>")
+				//delete values[firstKey]; // delete the first property from the object
+				values.shift()
+				// add the new data to the table
+				console.log(values)
+				$.each(values, function(index,value) {
+					console.log("Object " + index + ": node = " + value.node + ", status = " + value.status);
+					
+					$("#data tbody").append("<tr><td>" + value.node + "</td><td>" + value.status + "</td></tr>");
+				});
 				setTimeout(updateData, 1000);
-			});
+			})
+
 		}
 
 		// call updateData() to start updating the data
