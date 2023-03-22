@@ -100,7 +100,7 @@ def test():
 def node_register(podId, name):
     if request.method == "POST":
         if len(nodes) >= 15:
-            result = 'Pod capacity has been reached (max 20 nodes)'
+            result = 'Pod capacity has been reached (max 15 nodes)'
             return jsonify({"result" : result})
         
         for node in nodes:
@@ -110,7 +110,7 @@ def node_register(podId, name):
             
         # container = client.containers.run('ubuntu', name = name, detach = True, tty = True)
         nodes.append(Node(name, get_pod(podId), get_available_port()))
-        result = 'Added NEW node under ' + podId 
+        result = 'Added NEW node ' + name + ' under ' + podId 
         return jsonify({"result" : result})
                
 
