@@ -88,7 +88,7 @@ def cloud_rm_node(pod_id, name):
         if data["result"] == "failure":
             return data
         
-        elif data["response"] == "success" and data["status"] == "ONLINE":
+        elif data["result"] == "success" and data["status"] == "ONLINE":
             disable_cmd = "echo 'experimental-mode on; set server " + pod_id.split('_')[0] + "-servers/" + data['name'] + ' state maint ' + "' | sudo socat stdio /run/haproxy/admin.sock"
             subprocess.run(disable_cmd, shell = True, check = True)
             
@@ -97,7 +97,8 @@ def cloud_rm_node(pod_id, name):
             
             msg = ("Removed node %s running on port %s" % (data['name'], data['port'])) 
             return jsonify({"result" : "success", "response" : msg})
-    
+        
+        return jsonify({"result" : "success", "response" : "Removed node " + data['name']})
 
 @app.route('/cloud/<pod_id>/launch',methods=['GET'])
 def cloud_launch_pod(pod_id):

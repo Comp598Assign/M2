@@ -177,7 +177,7 @@ def launch_node(container_name, port_number):
             container.remove(v=True, force=True)
 
     [img, logs] = client.images.build (path='./', rm=True ,dockerfile = './Dockerfile' )
-    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'light.py', container_name],ports={'5000/tcp' : port_number}, tty=True, cpu_quota = 50000, mem_limit = '300m')
+    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'medium.py', container_name],ports={'5000/tcp' : port_number}, tty=True, cpu_quota = 50000, mem_limit = '300m')
     # container = client.containers.run(image='ubuntu', detach=True, name=container_name, command=['echo', 'hello', 'world'],ports={'5000/tcp' : port_number})
     node = get_node(container_name)
     node.container = container

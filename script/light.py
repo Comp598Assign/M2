@@ -24,7 +24,7 @@ def main():
     eigenvalues = [eigenvectors[i][i] for i in range(n)]
     a = len(eigenvalues)
     end_time = datetime.now()
-    return "length of " + str(a) + " from " + "light server " + sys.argv[1] + " start from " + str(strt_time) + " end at " + str(end_time)  + "\n"
+    return "Input size: " + str(n) + "; from " + "medium server " + sys.argv[1] + "; start from " + str(strt_time) + " end at " + str(end_time)  + "\n"
 
 def matrix_inverse(matrix):
     n = len(matrix)

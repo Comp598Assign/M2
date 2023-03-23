@@ -120,7 +120,7 @@ def node_rm(node_name):
     if node is None:
         return jsonify({"result" : "failure", "response" : "node does not exist."})
     rm_node(node)
-    return jsonify({"result" : "success", "name" : node.name, "port" : node.port, "status" : node.status}) 
+    return jsonify({"result" : "success", "name" : node.name, "port" : node.port, "status" : node.status})
 
 
 @app.route('/cloudproxy/<podId>/allNodes', methods = ['GET'])
@@ -175,7 +175,7 @@ def launch_node(container_name, port_number):
             container.remove(v=True, force=True)
 
     [img, logs] = client.images.build (path='./', rm=True ,dockerfile = './Dockerfile' )
-    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'light.py', container_name],ports={'5000/tcp' : port_number}, tty=True, cpu_quota = 80000, mem_limit = '500m')
+    container = client.containers.run(image=img, detach=True, name=container_name, command=['python' , 'heavy.py', container_name],ports={'5000/tcp' : port_number}, tty=True, cpu_quota = 80000, mem_limit = '500m')
     # container = client.containers.run(image='ubuntu', detach=True, name=container_name, command=['echo', 'hello', 'world'],ports={'5000/tcp' : port_number})
     node = get_node(container_name)
     node.container = container
