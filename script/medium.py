@@ -12,7 +12,7 @@ def main():
     strt_time = datetime.now() 
     if len(sys.argv) != 2:
         return 'require more arguments'
-    n = 40
+    n = 30
     matrix = [[random.random() for j in range(n)] for i in range(n)]
     power = 100
     result = matrix
