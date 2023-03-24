@@ -3,3 +3,7 @@
 -Url of resource_manager needs to be passed in as an argument when running toolSet.py
 -Three proxy's url is hardcoded .env file. Please add all three of them for the project the work.
 -All three light, heavy, medium cpu consuming tasks are in job folder.
+-The sources of tasks are below:
+#Title: Non sense cpu cosuming code generated Chatgpt
+#Script from chatGpt
+#https://chat.openai.com
